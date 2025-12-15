@@ -7,8 +7,15 @@ Docker-Container mit Samba 4 Active Directory Domain Controller und integriertem
 Das Docker Image wird automatisch bei jedem Push zu GitHub gebaut und ist verfügbar unter:
 
 ```bash
-docker pull ghcr.io/<dein-username>/<repo-name>:latest
+docker pull ghcr.io/bitcircuiteu/smb4-on-docker:latest
 ```
+
+**Repository**: [https://github.com/BitcircuitEU/smb4-on-docker](https://github.com/BitcircuitEU/smb4-on-docker)
+
+**Verfügbare Tags**:
+- `latest` - Neueste Version
+- `a1b2c3d` - SHA-Version (7 Zeichen, bei jedem Push zu main)
+- Vollständiger SHA - Vollständiger Commit-SHA
 
 Siehe [.github/workflows/README.md](.github/workflows/README.md) für Details zum automatischen Build-Prozess.
 

@@ -1,0 +1,22 @@
+# Umgebungsvariablen mit sensiblen Daten
+.env
+
+# Docker Volumes
+*.log
+
+# Temporäre Dateien
+*.tmp
+*.swp
+*~
+
+# IDE Dateien
+.vscode/
+.idea/
+
+# Zertifikat Private Keys (geheim!)
+certs/*.key
+certs/*.srl
+
+# Backup-Dateien
+backups/
+*.tar.gz
