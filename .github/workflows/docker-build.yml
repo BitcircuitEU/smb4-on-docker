@@ -74,17 +74,55 @@ jobs:
             
             ### Verwendung
             
+            #### Docker Compose
+            
+            In `docker-compose.yml` die `build:` Zeile durch `image:` ersetzen:
+            
+            ```yaml
+            services:
+              samba-ad-dc:
+                image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.version }}
+                # ... rest der Konfiguration
+            ```
+            
+            #### Docker Run
+            
             ```bash
-            # Image mit SHA-Version pullen
+            # Image pullen
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.version }}
             
-            # Oder neueste Version
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
-            # Mit docker-compose.yml verwenden
-            # In docker-compose.yml die build-Zeile durch image ersetzen:
-            # image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.version }}
+            # Container starten
+            docker run -d \
+              --name samba-ad-dc \
+              --hostname dc1 \
+              --privileged \
+              --restart unless-stopped \
+              --cap-add NET_ADMIN \
+              --cap-add SYS_ADMIN \
+              --cap-add SYS_TIME \
+              --dns 127.0.0.1 \
+              --dns 1.1.1.1 \
+              -p 88:88/tcp -p 88:88/udp \
+              -p 135:135/tcp \
+              -p 139:139/tcp \
+              -p 389:389/tcp -p 389:389/udp \
+              -p 445:445/tcp \
+              -p 464:464/tcp -p 464:464/udp \
+              -p 3268:3268/tcp \
+              -p 8080:8080 \
+              -e SAMBA_DOMAIN=TERHORST \
+              -e SAMBA_REALM=AD.TERHORST.IO \
+              -e SAMBA_ADMIN_PASSWORD=DeinSicheresPasswort123! \
+              -e SAMBA_DNS_FORWARDER=1.1.1.1 \
+              -e TZ=Europe/Berlin \
+              -v samba-data:/var/lib/samba \
+              -v samba-config:/etc/samba/external \
+              -v samba-logs:/var/log/samba \
+              -v lam-config:/etc/ldap-account-manager \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.version }}
             ```
+            
+            **Wichtig**: Passe die Umgebungsvariablen (`-e`) an deine Domain an!
             
             ### Verfügbare Tags
             
