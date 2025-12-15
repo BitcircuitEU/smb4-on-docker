@@ -1,0 +1,56 @@
+services:
+  samba-ad-dc:
+    build: .
+    container_name: samba-ad-dc
+    hostname: dc1
+    domainname: ad.example.com
+    privileged: true
+    restart: unless-stopped
+    
+    ports:
+      # Port 53 wird NICHT gemappt (Konflikt mit systemd-resolved)
+      - "88:88/tcp"      # Kerberos
+      - "88:88/udp"      # Kerberos
+      - "135:135/tcp"    # MS-RPC
+      - "139:139/tcp"    # NetBIOS Session
+      - "389:389/tcp"    # LDAP
+      - "389:389/udp"    # LDAP
+      - "445:445/tcp"    # SMB
+      - "464:464/tcp"    # Kerberos Password
+      - "464:464/udp"    # Kerberos Password
+      - "3268:3268/tcp"  # Global Catalog
+      - "8080:8080"      # LAM WebGUI (http://localhost:8080)
+    
+    environment:
+      - SAMBA_DOMAIN=EXAMPLE
+      - SAMBA_REALM=AD.EXAMPLE.COM
+      - SAMBA_ADMIN_PASSWORD=SambaP@assw0rd
+      - SAMBA_DNS_FORWARDER=8.8.8.8
+      - TZ=Europe/Berlin
+    
+    volumes:
+      - samba-data:/var/lib/samba
+      - samba-config:/etc/samba/external
+      - samba-logs:/var/log/samba
+      # LAM-Konfiguration persistent speichern
+      - lam-config:/etc/ldap-account-manager
+    
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_TIME
+
+# Volumes für persistente Daten
+volumes:
+  samba-data:
+    driver: local
+  samba-config:
+    driver: local
+  samba-logs:
+    driver: local
+  lam-config:
+    driver: local
