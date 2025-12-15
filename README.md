@@ -38,6 +38,47 @@ Siehe [.github/workflows/README.md](.github/workflows/README.md) für Details zu
    - LAM WebGUI: http://localhost:8080
    - Samba AD DC: Ports 88, 135, 139, 389, 445, 464, 3268
 
+## Docker Run (ohne Compose)
+
+Alternativ kannst du den Container auch direkt mit `docker run` starten:
+
+```bash
+docker run -d \
+  --name samba-ad-dc \
+  --hostname dc1 \
+  --privileged \
+  --restart unless-stopped \
+  --cap-add NET_ADMIN \
+  --cap-add SYS_ADMIN \
+  --cap-add SYS_TIME \
+  --dns 127.0.0.1 \
+  --dns 1.1.1.1 \
+  -p 88:88/tcp -p 88:88/udp \
+  -p 135:135/tcp \
+  -p 139:139/tcp \
+  -p 389:389/tcp -p 389:389/udp \
+  -p 445:445/tcp \
+  -p 464:464/tcp -p 464:464/udp \
+  -p 3268:3268/tcp \
+  -p 8080:8080 \
+  -e SAMBA_DOMAIN=TERHORST \
+  -e SAMBA_REALM=AD.TERHORST.IO \
+  -e SAMBA_ADMIN_PASSWORD=DeinSicheresPasswort123! \
+  -e SAMBA_DNS_FORWARDER=1.1.1.1 \
+  -e TZ=Europe/Berlin \
+  -v samba-data:/var/lib/samba \
+  -v samba-config:/etc/samba/external \
+  -v samba-logs:/var/log/samba \
+  -v lam-config:/etc/ldap-account-manager \
+  ghcr.io/bitcircuiteu/smb4-on-docker:latest
+```
+
+**Wichtig**: Passe die Umgebungsvariablen (`-e`) an deine Domain an:
+- `SAMBA_DOMAIN`: Dein Domain-Name (z.B. `TERHORST`)
+- `SAMBA_REALM`: Dein Realm (z.B. `AD.TERHORST.IO`)
+- `SAMBA_ADMIN_PASSWORD`: Dein Administrator-Passwort
+- `SAMBA_DNS_FORWARDER`: DNS-Forwarder (z.B. `1.1.1.1` oder `8.8.8.8`)
+
 ## LAM (LDAP Account Manager) Konfiguration
 
 ### 1. Erste Anmeldung
